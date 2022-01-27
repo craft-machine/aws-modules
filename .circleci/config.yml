@@ -8,10 +8,10 @@ jobs:
       - run:
           working_directory: tests/terraform
             command: |
-            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
-            terraform workspace select staging
-            terraform apply -var "secret_key=${AWS_STAGING_SECRET_ACCESS_KEY}" -var "access_key=${AWS_STAGING_ACCESS_KEY}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
-            terraform destroy -var "secret_key=${AWS_STAGING_SECRET_ACCESS_KEY}" -var "access_key=${AWS_STAGING_ACCESS_KEY}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
+              terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
+              terraform workspace select staging
+              terraform apply -var "secret_key=${AWS_STAGING_SECRET_ACCESS_KEY}" -var "access_key=${AWS_STAGING_ACCESS_KEY}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
+              terraform destroy -var "secret_key=${AWS_STAGING_SECRET_ACCESS_KEY}" -var "access_key=${AWS_STAGING_ACCESS_KEY}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
   tag-every-master-commit:
     docker:
       - image: cibuilds/github:0.10
