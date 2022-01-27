@@ -1,26 +1,43 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  test-terraform:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+      - image: craftmachine/amazonlinux-python3-terraform:0.13.5
+    parameters:
+      env:
+        type: string
     steps:
       - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          working_directory: tests/terraform
+          command: |
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
+            terraform workspace select << parameters.env >> || terraform workspace new << parameters.env >>
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
+            terraform apply -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
+            terraform destroy -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
+  tag-every-master-commit:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - run:
+          name: "Tag and publish commit on Github"
+          command: |
+            VERSION=$(my-binary --version)
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION}
 
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  say-hello-workflow:
+  version: 2
+  main:
     jobs:
-      - say-hello
+      - test-terraform:
+          name: staging_test
+          context: staging
+          env: staging
+      - tag-every-master-commit:
+          requires:
+            - staging_test
+          filters:
+            branches:
+              only: master

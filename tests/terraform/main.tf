@@ -1,23 +1,3 @@
-variable "access_key" {
-}
-
-variable "secret_key" {
-}
-
-variable "ops_access_key" {
-}
-
-variable "ops_secret_key" {
-}
-
-terraform {
-  backend "s3" {
-    bucket = "craft-tfstate"
-    key    = "lambda_function_test.tfstate"
-    region = "us-east-1"
-  }
-}
-
 provider "aws" {
   version    = "~> 3.55"
   region     = data.terraform_remote_state.network.outputs.aws_region
