@@ -4,14 +4,17 @@ jobs:
   test-terraform:
     docker:
       - image: craftmachine/amazonlinux-python3-terraform:0.13.5
+    parameters:
+      env:
+        type: string
     steps:
       - run:
           working_directory: tests/terraform
           command: |
-            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
-            terraform workspace select staging
-            terraform apply -var "secret_key=${AWS_STAGING_SECRET_ACCESS_KEY}" -var "access_key=${AWS_STAGING_ACCESS_KEY}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
-            terraform destroy -var "secret_key=${AWS_STAGING_SECRET_ACCESS_KEY}" -var "access_key=${AWS_STAGING_ACCESS_KEY}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -input=false
+            terraform workspace select << parameters.env >> || terraform workspace new << parameters.env >>
+            terraform apply -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
+            terraform destroy -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
   tag-every-master-commit:
     docker:
       - image: cibuilds/github:0.10
@@ -26,7 +29,10 @@ workflows:
   version: 2
   main:
     jobs:
-      - test-terraform
+      - test-terraform:
+          name: staging_test
+          context: staging
+          env: staging
       - tag-every-master-commit:
           requires:
             - test-terraform
