@@ -8,6 +8,7 @@ jobs:
       env:
         type: string
     steps:
+      - checkout
       - run:
           working_directory: tests/terraform
           command: |
