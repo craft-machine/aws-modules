@@ -12,9 +12,9 @@ jobs:
       - run:
           working_directory: tests/terraform
           command: |
-            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -input=false
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
             terraform workspace select << parameters.env >> || terraform workspace new << parameters.env >>
-            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -input=false
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
             terraform apply 
             -var "secret_key=${AWS_SECRET_ACCESS_KEY}" 
             -var "access_key=${AWS_ACCESS_KEY_ID}" 
