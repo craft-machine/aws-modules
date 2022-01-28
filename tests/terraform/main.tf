@@ -15,6 +15,7 @@ terraform {
     bucket = "craft-tfstate"
     key    = "lambda_function_test.tfstate"
     region = "us-east-1"
+    profile = "staging"
   }
 }
 
