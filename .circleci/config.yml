@@ -15,7 +15,12 @@ jobs:
             terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -input=false
             terraform workspace select << parameters.env >> || terraform workspace new << parameters.env >>
             terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -input=false
-            terraform apply -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
+            terraform apply 
+            -var "secret_key=${AWS_SECRET_ACCESS_KEY}" 
+            -var "access_key=${AWS_ACCESS_KEY_ID}" 
+            -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" 
+            -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" 
+            -auto-approve
             terraform destroy -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
   tag-every-master-commit:
     docker:
