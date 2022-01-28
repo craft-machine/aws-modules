@@ -15,8 +15,6 @@ terraform {
     bucket = "craft-tfstate"
     key    = "lambda_function_test.tfstate"
     region = "us-east-1"
-    access_key = var.ops_access_key
-    secret_key = var.ops_secret_key
   }
 }
 
