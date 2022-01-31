@@ -22,11 +22,11 @@ jobs:
       - image: cibuilds/github:0.10
     steps:
     - attach_workspace:
-        at: tests/terraform
+        at: ./artifacts
       - run:
           name: "Tag and publish commit on Github"
           command: |
-            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_BUILD_NUM} tests/terraform
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${CIRCLE_BUILD_NUM} ./artifacts
 
 workflows:
   version: 2
