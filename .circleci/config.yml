@@ -1,0 +1,43 @@
+version: 2.1
+
+jobs:
+  test-terraform:
+    docker:
+      - image: hashicorp/terraform:0.13.5
+    parameters:
+      env:
+        type: string
+    steps:
+      - checkout
+      - run:
+          working_directory: tests/terraform
+          command: |
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
+            terraform workspace select << parameters.env >> || terraform workspace new << parameters.env >>
+            terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
+            terraform apply -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
+            terraform destroy -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
+  tag-every-master-commit:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - run:
+          name: "Tag and publish commit on Github"
+          command: |
+            VERSION=$(my-binary --version)
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION}
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - test-terraform:
+          name: staging_test
+          context: staging
+          env: staging
+      - tag-every-master-commit:
+          requires:
+            - staging_test
+          filters:
+            branches:
+              only: master
