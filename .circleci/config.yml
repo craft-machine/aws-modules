@@ -22,7 +22,7 @@ jobs:
       - image: cibuilds/github:0.10
     steps:
       - attach_workspace:
-        at: tests/terraform
+          at: tests/terraform
       - run:
           name: "Tag and publish commit on Github"
           command: |
