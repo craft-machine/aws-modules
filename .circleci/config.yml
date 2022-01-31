@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   test-terraform:
     docker:
-      - image: craftmachine/amazonlinux-python3-terraform:0.13.5
+      - image: hashicorp/terraform:0.13.5
     parameters:
       env:
         type: string
