@@ -1,5 +1,6 @@
 version: 2.1
-
+orbs:
+  slack: circleci/slack@4.6.3
 jobs:
   test-terraform:
     docker:
@@ -17,28 +18,45 @@ jobs:
             terraform init -backend-config="secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -backend-config="access_key=${AWS_OPS_ACCESS_KEY}" -input=false
             terraform apply -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -auto-approve
             terraform destroy -var "secret_key=${AWS_SECRET_ACCESS_KEY}" -var "access_key=${AWS_ACCESS_KEY_ID}" -var "ops_secret_key=${AWS_OPS_SECRET_ACCESS_KEY}" -var "ops_access_key=${AWS_OPS_ACCESS_KEY}" -force
-  tag-every-master-commit:
+  slack-notification-new-tag:
     docker:
-      - image: cibuilds/github:0.10
+      - image: 'cimg/base:stable'
     steps:
-      - attach_workspace:
-          at: tests/terraform
-      - run:
-          name: "Tag and publish commit on Github"
-          command: |
-            ghr -t "${GITHUB_TOKEN}" -u "${CIRCLE_PROJECT_USERNAME}" -r "${CIRCLE_PROJECT_REPONAME}" -c "${CIRCLE_SHA1}" -delete "${CIRCLE_BUILD_NUM}" tests/terraform
-
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "New release – ${CIRCLE_BUILD_NUM}, ${CIRCLE_PROJECT_REPONAME}",
+                      "emoji": true
+                    },
+                    {
+                      "type": "image",
+                      "image_url": "https://api.slack.com/img/blocks/bkb_template_images/approvalsNewDevice.png",
+                      "alt_text": "computer thumbnail"
+			        }            
+                  ]
+                }
+              ]
+            }
+          event: always
 workflows:
-  version: 2
   main:
     jobs:
       - test-terraform:
           name: staging_test
           context: staging
           env: staging
-      - tag-every-master-commit:
+      - slack-notification-new-tag:
+          context: staging
           requires:
             - staging_test
           filters:
             branches:
               only: master
+            tags:
+              only: /^\d+\.\d+\.\d+$/
