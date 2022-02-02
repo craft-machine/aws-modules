@@ -23,22 +23,12 @@ jobs:
       - image: 'cimg/base:stable'
     steps:
       - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "New release – ${CIRCLE_BUILD_NUM}, ${CIRCLE_PROJECT_REPONAME}",
-                      "emoji": true
-                    }           
-                  ]
-                }
-              ]
-            }
-          event: always
+          event: fail
+          mentions: '@data-engineers'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
 workflows:
   main:
     jobs:
@@ -52,4 +42,4 @@ workflows:
             - staging_test
           filters:
             tags:
-              only: /^\d+\.\d+\.\d+$/
+              only: /^v.*/
