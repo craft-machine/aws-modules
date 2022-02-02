@@ -26,9 +26,11 @@ jobs:
           event: fail
           mentions: '@data-engineers'
           template: basic_fail_1
+          channel: C4H4ZV72S
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
+          channel: C4H4ZV72S
 workflows:
   main:
     jobs:
@@ -37,9 +39,8 @@ workflows:
           context: staging
           env: staging
       - slack-notification-new-tag:
-          context: staging
-          requires:
-            - staging_test
           filters:
             tags:
               only: /^v.*/
+          requires:
+            - staging_test
