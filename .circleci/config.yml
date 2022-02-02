@@ -1,6 +1,14 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.6.3
+
+only-tags: &only-tags
+  filters:
+    tags:
+      only: /^v.*/
+    branches:
+      ignore: /.*/
+
 jobs:
   test-terraform:
     docker:
@@ -40,14 +48,11 @@ workflows:
   tagged-build:
     jobs:
       - test-terraform:
+          <<: &only-tags
           context: staging
           env: staging
       - slack-notification-new-tag:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+          <<: &only-tags
           requires:
             - test-terraform
           context: staging
