@@ -44,3 +44,4 @@ workflows:
               only: /^v.*/
           requires:
             - staging_test
+          context: staging
