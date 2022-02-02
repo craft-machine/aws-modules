@@ -48,11 +48,11 @@ workflows:
   tagged-build:
     jobs:
       - test-terraform:
-          <<: *&only-tags
+          <<: *only-tags
           context: staging
           env: staging
       - slack-notification-new-tag:
-          <<: *&only-tags
+          <<: *only-tags
           requires:
             - test-terraform
           context: staging
