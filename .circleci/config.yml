@@ -26,22 +26,28 @@ jobs:
           event: fail
           mentions: '@data-engineers'
           template: basic_fail_1
-          channel: C4H4ZV72S
+          channel: C026VKRCL2H
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
-          channel: C4H4ZV72S
+          channel: C026VKRCL2H
 workflows:
-  main:
+  untagged-build:
     jobs:
       - test-terraform:
-          name: staging_test
+          context: staging
+          env: staging
+  tagged-build:
+    jobs:
+      - test-terraform:
           context: staging
           env: staging
       - slack-notification-new-tag:
           filters:
             tags:
               only: /^v.*/
+            branches:
+              ignore: /.*/
           requires:
-            - staging_test
+            - test-terraform
           context: staging
