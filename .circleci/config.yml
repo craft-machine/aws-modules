@@ -34,11 +34,12 @@ jobs:
           event: fail
           mentions: '@data-engineers'
           template: basic_fail_1
-          channel: C026VKRCL2H
+          channel: C9APZ79ND
       - slack/notify:
           event: pass
+          mentions: '@data-engineers'
           template: success_tagged_deploy_1
-          channel: C026VKRCL2H
+          channel: C9APZ79ND
 workflows:
   untagged-build:
     jobs:
