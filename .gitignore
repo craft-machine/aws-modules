@@ -30,3 +30,6 @@ override.tf.json
 
 # Jetbrains
 .idea/
+
+# .sh
+tests/delete_policies.sh
